@@ -1,0 +1,20 @@
+# Local settings and test output
+*.settings.xml
+*.tmp
+ThumbShift-settings-*/
+Registration-test-*/
+self-test.txt
+settings-test.txt
+startup-test.txt
+tray-test.txt
+registration-test.txt
+screen-*.png
+
+# Editor and scratch files
+.vs/
+.vscode/
+*.user
+*.suo
+obj/
+bin/
+CreateIcon.exe
