@@ -1,0 +1,54 @@
+name: build
+
+on:
+  push:
+    branches-ignore: [main]
+    paths: ['source/**', 'assets/**', 'layouts/**', '.github/workflows/build.yml']
+  pull_request:
+    paths: ['source/**', 'assets/**', 'layouts/**', '.github/workflows/build.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        shell: pwsh
+        run: ./source/build.ps1
+      - name: Self tests
+        shell: pwsh
+        run: |
+          $exe = Resolve-Path ./ThumbType.exe
+          foreach ($t in '--self-test', '--registration-test') {
+            $p = Start-Process -FilePath $exe -ArgumentList $t -Wait -PassThru
+            if ($p.ExitCode -ne 0) { throw "$t failed ($($p.ExitCode))" }
+          }
+          Get-Content ./registration-test.txt
+          Remove-Item ./self-test.txt, ./registration-test.txt -ErrorAction SilentlyContinue
+      - name: Update SHA256SUMS
+        shell: pwsh
+        run: |
+          $h = (Get-FileHash ./ThumbType.exe -Algorithm SHA256).Hash.ToLower()
+          [IO.File]::WriteAllText("$PWD/SHA256SUMS.txt", "$h  ThumbType.exe`n")
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ThumbType
+          path: |
+            ThumbType.exe
+            SHA256SUMS.txt
+      - name: Commit rebuilt exe
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ThumbType.exe SHA256SUMS.txt
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m 'build: ThumbType.exeを再ビルド [skip ci]'
+            git push
+          }

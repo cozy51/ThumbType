@@ -19,6 +19,21 @@
 
 以前の配列設定を引き継ぐには、旧exeと同じフォルダにThumbType.exeを置いてください。設定ファイル名 `ThumbShiftPortable.settings.xml` は旧版との互換性のため維持しています。旧exeと新exeを両方起動することはできません。
 
+## Windows Defenderに「トロイの木馬」と表示された場合
+
+ThumbTypeは親指シフトを実現するため、キーボード入力をフックして別の文字を送信し、スタートアップに登録できます。
+これらはマルウェアと同じ種類のWindows機能なので、**署名のない新しいexe**はDefenderに誤検知されることがあります。
+ThumbTypeはネットワーク通信を行わず、ソースは `source/` で公開しています。
+
+1. ダウンロードしたexeが本物か確認します（PowerShell）。結果が `SHA256SUMS.txt` の値と一致すれば、このリポジトリのexeです。
+   ```powershell
+   Get-FileHash .\ThumbType.exe -Algorithm SHA256
+   ```
+2. Windowsセキュリティ →「保護の履歴」→ 該当項目 →「操作」→「許可」（隔離済みなら「復元」）を選びます。
+3. 誤検知の報告は [Microsoftの提出フォーム](https://www.microsoft.com/wdsi/filesubmission) から「Incorrectly detected as malware」で送れます。承認されると他のPCでも検出されなくなります。
+
+許可はそのexe（同じハッシュ）に対して有効です。新しい版に更新すると再度検出されることがあります。
+
 ## 同梱NICOLA.yabの反映
 
 以前の29キーの学習用サンプルを、同梱のNICOLA.yabに基づく **JIS 109キーボード用・48キー・4層** の配列へ置き換えました。
