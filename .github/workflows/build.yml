@@ -16,9 +16,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build
-        shell: pwsh
-        run: ./source/build.ps1
+      - name: Build (Windows PowerShell 5.1)
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File .\source\build.ps1
       - name: Self tests
         shell: pwsh
         run: |
