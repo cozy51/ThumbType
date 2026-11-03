@@ -7,3 +7,5 @@
 *.exe binary
 *.ico binary
 *.png binary
+# GitHubの「Download ZIP」に未署名exeを含めない（Defenderによるzipごとのブロックを避ける）
+ThumbType.exe export-ignore

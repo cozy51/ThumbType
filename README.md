@@ -5,6 +5,8 @@
 
 [exeをダウンロード](https://github.com/cozy51/ThumbType/raw/refs/heads/main/ThumbType.exe) · [ソース一式をダウンロード](https://github.com/cozy51/ThumbType/archive/refs/heads/main.zip)
 
+ソース一式のzipにはexeを含みません。exeのダウンロードがブロックされる場合は、zipを展開して[自分でビルド](#ソースと再ビルド)してください。
+
 ![ThumbTypeの設定画面](docs/images/settings.png)
 
 ## 更新時の操作
@@ -33,6 +35,8 @@ ThumbTypeはネットワーク通信を行わず、ソースは `source/` で公
 3. 誤検知の報告は [Microsoftの提出フォーム](https://www.microsoft.com/wdsi/filesubmission) から「Incorrectly detected as malware」で送れます。承認されると他のPCでも検出されなくなります。
 
 許可はそのexe（同じハッシュ）に対して有効です。新しい版に更新すると再度検出されることがあります。
+
+exeやzipのダウンロード自体がブロックされる場合は、ソース一式のzip（exeを含みません）を展開して、手元でビルドしてください。手順は「ソースと再ビルド」にあります。手元でビルドしたexeは、ダウンロードしたファイルより検出されにくくなります（必ず検出されないとは限りません）。
 
 ## 同梱NICOLA.yabの反映
 
@@ -109,7 +113,7 @@ Ctrl・Alt・Windowsキーのショートカット、管理者権限の対象、
 
 ## ソースと再ビルド
 
-`source/build.ps1` をWindows PowerShellから実行します。追加パッケージは不要です。アイコンはexeに内蔵されています。同梱NICOLA.yabも内蔵するのでexe単体で実行できます。
+ソース一式のzipを展開したフォルダで、`source/build.ps1` をWindows PowerShellから実行します。フォルダ直下に `ThumbType.exe` ができます。追加パッケージは不要です。アイコンはexeに内蔵されています。同梱NICOLA.yabも内蔵するのでexe単体で実行できます。
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\source\build.ps1
