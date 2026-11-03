@@ -19,7 +19,7 @@ static class Program {
   if(args.Length>0&&args[0]=="--preview"){Application.EnableVisualStyles();using(var f=new MainForm(false,false)){f.RenderPreview();}return;}
   if(args.Length>0&&args[0]=="--tray-test"){Application.EnableVisualStyles();using(var f=new MainForm(true,false)){f.TestTrayLifecycle();}return;}
   bool first;using(var mutex=new Mutex(true,"Local\\ThumbShiftPortable-v1",out first)){
-   if(!first){MessageBox.Show("すでに起動しています。通知領域（時計の横、または「^」の中）のアイコンをダブルクリックしてください。");return;}
+   if(!first){MessageBox.Show("ThumbType（または旧版のThumbShiftPortable）がすでに起動しています。\n通知領域（時計の横、または「^」の中）のアイコンをダブルクリックしてください。\nアイコンが見つからない場合は、タスクマネージャーで既存のプロセスを終了してから起動し直してください。","ThumbType");return;}
    Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);
    MainForm form=null;Application.ThreadException+=delegate(object s,ThreadExceptionEventArgs e){if(form!=null)form.Stop();MessageBox.Show("安全のため停止しました。\n"+e.Exception.Message);};
    AppDomain.CurrentDomain.UnhandledException+=delegate{if(form!=null)form.Stop();};
@@ -32,7 +32,7 @@ public sealed class MainForm:Form {
  readonly ComboBox left=new ComboBox(),right=new ComboBox(),mode=new ComboBox();readonly NumericUpDown time=new NumericUpDown();
  readonly CheckBox lt=new CheckBox(),rt=new CheckBox(),lh=new CheckBox(),rh=new CheckBox(),repeat=new CheckBox();readonly TextBox test=new TextBox();
  HookService service;Layout layout;bool hotkey;bool preview;bool allowShow;bool exiting;bool resourcesDisposed;bool testing;
- readonly NotifyIcon tray=new NotifyIcon();readonly ContextMenuStrip trayMenu=new ContextMenuStrip();
+ readonly TrayIcon tray=new TrayIcon();readonly ContextMenuStrip trayMenu=new ContextMenuStrip();
  ToolStripMenuItem trayStart,trayStop;
  string layoutError;
  readonly LayoutSettings settings;
@@ -68,7 +68,7 @@ public sealed class MainForm:Form {
   trayStart=(ToolStripMenuItem)trayMenu.Items.Add("開始",null,delegate{Start();});
   trayStop=(ToolStripMenuItem)trayMenu.Items.Add("停止・通常入力へ",null,delegate{Stop();});
   trayMenu.Items.Add(new ToolStripSeparator());trayMenu.Items.Add("終了",null,delegate{ExitApplication();});
-  tray.Icon=Icon;tray.ContextMenuStrip=trayMenu;tray.DoubleClick+=delegate{ShowSettings();};UpdateTray();
+  tray.Icon=new Icon(Icon,SystemInformation.SmallIconSize);tray.ContextMenuStrip=trayMenu;tray.DoubleClick+=delegate{ShowSettings();};UpdateTray();
   // Keep a stable window handle for hotkeys even while settings are hidden.
   IntPtr windowHandle=Handle;tray.Visible=enableTray;
   Resize+=delegate{if(WindowState==FormWindowState.Minimized)HideSettings();};
@@ -144,7 +144,7 @@ public sealed class MainForm:Form {
  public void TestTrayLifecycle(){testing=true;StartPosition=FormStartPosition.Manual;Location=new Point(-32000,-32000);var report=new StringBuilder();bool ok=true;
   Action<bool,string> check=delegate(bool condition,string name){if(!condition)throw new Exception(name);report.AppendLine("PASS: "+name);};
   using(var timer=new System.Windows.Forms.Timer()){timer.Interval=50;timer.Tick+=delegate{timer.Stop();try{
-   check(!Visible&&!ShowInTaskbar,"startup hidden, no taskbar button");check(tray.Visible,"tray icon visible");check(service==null&&!hotkey,"startup stopped");check(trayStart.Enabled&&!trayStop.Enabled,"stopped menu state");
+   check(!Visible&&!ShowInTaskbar,"startup hidden, no taskbar button");check(tray.Visible,"tray icon visible");check(tray.Added,"shell accepted tray icon");check(service==null&&!hotkey,"startup stopped");check(trayStart.Enabled&&!trayStop.Enabled,"stopped menu state");
    ShowSettings();check(Visible&&!ShowInTaskbar,"settings open without taskbar");
    Close();check(!Visible&&!IsDisposed&&tray.Visible,"close hides settings and keeps tray resident");
    ShowSettings();check(Visible,"reopen after close");WindowState=FormWindowState.Minimized;check(!Visible&&!IsDisposed,"minimize hides settings");
